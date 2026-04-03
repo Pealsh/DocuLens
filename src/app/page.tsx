@@ -1,65 +1,249 @@
-import Image from "next/image";
+// メインページ（モード切り替え含む）
+'use client';
 
-export default function Home() {
+import { useState, useCallback, useRef } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import Header from '@/components/layout/Header';
+import Footer from '@/components/layout/Footer';
+import UploadArea from '@/components/upload/UploadArea';
+import TextInput from '@/components/upload/TextInput';
+import UrlInput from '@/components/upload/UrlInput';
+import DocumentList from '@/components/upload/DocumentList';
+import ModeSwitcher from '@/components/mode/ModeSwitcher';
+import SummaryView from '@/components/summary/SummaryView';
+import ChatWindow from '@/components/chat/ChatWindow';
+import Card from '@/components/ui/Card';
+import { useDocuments } from '@/hooks/useDocuments';
+import { useFileUpload } from '@/hooks/useFileUpload';
+import { useSummary } from '@/hooks/useSummary';
+import { useChat } from '@/hooks/useChat';
+import { MODE_SUMMARY, MODE_CHAT, type AppMode } from '@/lib/constants';
+
+type InputMethod = 'file' | 'text' | 'url';
+
+/**
+ * スライド方向を決定する
+ * summary→chat: 右へスライド（+1）、chat→summary: 左へスライド（-1）
+ */
+function getSlideDirection(from: AppMode, to: AppMode): number {
+  if (from === MODE_SUMMARY && to === MODE_CHAT) return 1;
+  if (from === MODE_CHAT && to === MODE_SUMMARY) return -1;
+  return 0;
+}
+
+const SLIDE_OFFSET = 60;
+
+// tween + easeInOut でバウンスなし・スッと滑らかに切り替わる
+const CONTENT_TRANSITION = {
+  type: 'tween',
+  duration: 0.25,
+  ease: [0.4, 0, 0.2, 1],
+} as const;
+
+export default function HomePage() {
+  const [currentMode, setCurrentMode] = useState<AppMode>(MODE_SUMMARY);
+  const [activeInputMethod, setActiveInputMethod] = useState<InputMethod>('file');
+  const previousModeRef = useRef<AppMode>(MODE_SUMMARY);
+  const slideDirection = getSlideDirection(previousModeRef.current, currentMode);
+
+  const {
+    documentList,
+    hasDocuments,
+    combinedDocumentText,
+    addDocument,
+    removeDocument,
+    clearAllDocuments,
+  } = useDocuments();
+
+  const handleUploadSuccess = useCallback(
+    (fileName: string, content: string, fileType: string, pageCount?: number) => {
+      addDocument(fileName, content, 'file', { fileType, pageCount });
+    },
+    [addDocument]
+  );
+
+  const { isUploading, uploadError, uploadMultipleFiles, clearUploadError } = useFileUpload({
+    onUploadSuccess: handleUploadSuccess,
+  });
+
+  const {
+    summaryText,
+    isSummarizing,
+    summaryError,
+    hasSummary,
+    generateSummary,
+    clearSummary,
+  } = useSummary();
+
+  const {
+    messageList,
+    isSendingMessage,
+    sendMessage,
+    clearMessages,
+  } = useChat();
+
+  const handleTextSubmit = useCallback(
+    (text: string) => {
+      const name = `テキスト入力 ${new Date().toLocaleTimeString('ja-JP')}`;
+      addDocument(name, text, 'text');
+    },
+    [addDocument]
+  );
+
+  const handleUrlFetched = useCallback(
+    (title: string, content: string, url: string, source: import('@/types/document').DocumentSource) => {
+      addDocument(title, content, source, { url });
+    },
+    [addDocument]
+  );
+
+  const handleGenerateSummary = useCallback(() => {
+    if (hasDocuments) {
+      generateSummary(combinedDocumentText);
+    }
+  }, [hasDocuments, combinedDocumentText, generateSummary]);
+
+  const handleRegenerateSummary = useCallback(() => {
+    clearSummary();
+    if (hasDocuments) {
+      generateSummary(combinedDocumentText);
+    }
+  }, [hasDocuments, combinedDocumentText, generateSummary, clearSummary]);
+
+  const handleSendChatMessage = useCallback(
+    (message: string) => {
+      sendMessage(message, combinedDocumentText);
+    },
+    [sendMessage, combinedDocumentText]
+  );
+
+  const handleModeSwitch = useCallback((mode: AppMode) => {
+    setCurrentMode((previous) => {
+      previousModeRef.current = previous;
+      return mode;
+    });
+  }, []);
+
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
+    <>
+      <Header />
+      <main className="flex-1">
+        <div className="mx-auto max-w-[960px] px-4 py-8 space-y-8">
+          {/* ドキュメント入力セクション */}
+          <section className="space-y-4">
+            <div>
+              <h2 className="text-lg font-bold text-text-primary">
+                ドキュメントを追加
+              </h2>
+              <p className="text-sm text-text-secondary mt-1">
+                テキスト・ファイル・URLからドキュメントを追加できます
+              </p>
+            </div>
+
+            {/* 入力方法切り替えタブ */}
+            <div className="flex gap-1 bg-bg-tertiary rounded-[var(--radius-sm)] p-1 w-fit">
+              {INPUT_METHOD_OPTIONS.map((option) => (
+                <button
+                  key={option.key}
+                  onClick={() => setActiveInputMethod(option.key)}
+                  className={`
+                    px-3 py-1.5 text-sm font-medium rounded-[6px]
+                    transition-all duration-[var(--transition-fast)]
+                    cursor-pointer
+                    ${
+                      activeInputMethod === option.key
+                        ? 'bg-bg-primary text-text-primary shadow-[var(--shadow-sm)]'
+                        : 'text-text-muted hover:text-text-secondary'
+                    }
+                  `}
+                >
+                  {option.label}
+                </button>
+              ))}
+            </div>
+
+            {/* 入力エリア */}
+            <Card>
+              <AnimatePresence mode="wait">
+                <motion.div
+                  key={activeInputMethod}
+                  initial={{ opacity: 0, y: 8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0, y: -8 }}
+                  transition={{ duration: 0.2 }}
+                >
+                  {activeInputMethod === 'file' && (
+                    <UploadArea
+                      onFilesSelected={uploadMultipleFiles}
+                      isUploading={isUploading}
+                      uploadError={uploadError}
+                      onClearError={clearUploadError}
+                    />
+                  )}
+                  {activeInputMethod === 'text' && (
+                    <TextInput onTextSubmit={handleTextSubmit} />
+                  )}
+                  {activeInputMethod === 'url' && (
+                    <UrlInput onUrlFetched={handleUrlFetched} />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </Card>
+
+            {/* ドキュメント一覧 */}
+            <DocumentList
+              documentList={documentList}
+              onRemoveDocument={removeDocument}
+              onClearAllDocuments={clearAllDocuments}
             />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
+          </section>
+
+          {/* モード切り替え */}
+          <section className="space-y-4">
+            <ModeSwitcher currentMode={currentMode} onModeSwitch={handleModeSwitch} />
+
+            {/* モードコンテンツ - 横スライドアニメーション */}
+            <div className="overflow-hidden">
+              <AnimatePresence mode="wait" initial={false}>
+                <motion.div
+                  key={currentMode}
+                  initial={{ opacity: 0, x: slideDirection * SLIDE_OFFSET }}
+                  animate={{ opacity: 1, x: 0 }}
+                  exit={{ opacity: 0, x: slideDirection * -SLIDE_OFFSET }}
+                  transition={CONTENT_TRANSITION}
+                >
+                  {currentMode === 'summary' ? (
+                    <SummaryView
+                      summaryText={summaryText}
+                      isSummarizing={isSummarizing}
+                      summaryError={summaryError}
+                      hasSummary={hasSummary}
+                      hasDocuments={hasDocuments}
+                      onGenerateSummary={handleGenerateSummary}
+                      onRegenerate={handleRegenerateSummary}
+                    />
+                  ) : (
+                    <ChatWindow
+                      messageList={messageList}
+                      isSendingMessage={isSendingMessage}
+                      hasDocuments={hasDocuments}
+                      onSendMessage={handleSendChatMessage}
+                      onClearMessages={clearMessages}
+                    />
+                  )}
+                </motion.div>
+              </AnimatePresence>
+            </div>
+          </section>
         </div>
       </main>
-    </div>
+      <Footer />
+    </>
   );
 }
+
+const INPUT_METHOD_OPTIONS: Array<{ key: InputMethod; label: string }> = [
+  { key: 'file', label: 'ファイル' },
+  { key: 'text', label: 'テキスト' },
+  { key: 'url', label: 'URL' },
+];
