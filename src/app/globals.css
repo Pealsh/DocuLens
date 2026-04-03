@@ -1,26 +1,152 @@
+/* DocuLens グローバルスタイル - カラートークン・テーマ設定の一元管理 */
 @import "tailwindcss";
 
+/* クラスベースのダークモード切替 */
+@custom-variant dark (&:where(.dark, .dark *));
+
+/* ========================================
+   カラートークン - 全色はここで一元管理
+   コンポーネント内では var(--color-xxx) で参照
+   ======================================== */
 :root {
-  --background: #ffffff;
-  --foreground: #171717;
+  /* 背景 - #322d8e に合うラベンダー系ライトトーン */
+  --color-bg-primary: #FAFAFE;
+  --color-bg-secondary: #F3F2FB;
+  --color-bg-tertiary: #E9E7F7;
+
+  /* テキスト */
+  --color-text-primary: #1A1830;
+  --color-text-secondary: #5B5880;
+  --color-text-muted: #9896B8;
+
+  /* アクセント - ベース #322d8e */
+  --color-accent: #322d8e;
+  --color-accent-hover: #2A2578;
+  --color-accent-light: #ECEAFF;
+
+  /* ボーダー・区切り線 */
+  --color-border: #DDDAF0;
+  --color-border-strong: #C4C0E2;
+
+  /* ステータス */
+  --color-success: #22C55E;
+  --color-error: #EF4444;
+  --color-warning: #F59E0B;
+
+  /* シャドウ - 紫みがかったシャドウ */
+  --shadow-sm: 0 1px 2px rgba(50, 45, 142, 0.06);
+  --shadow-md: 0 4px 6px rgba(50, 45, 142, 0.08);
+  --shadow-lg: 0 10px 15px rgba(50, 45, 142, 0.12);
+
+  /* 角丸 */
+  --radius-sm: 8px;
+  --radius-md: 12px;
+  --radius-lg: 16px;
+
+  /* トランジション */
+  --transition-fast: 150ms ease;
+  --transition-normal: 300ms ease;
 }
 
+/* ダークモード - ディープパープル系 */
+.dark {
+  --color-bg-primary: #0E0C1E;
+  --color-bg-secondary: #17143A;
+  --color-bg-tertiary: #231F50;
+
+  --color-text-primary: #EEEDF8;
+  --color-text-secondary: #9896C8;
+  --color-text-muted: #5E5C88;
+
+  /* ダークモードでは少し明るめの紫で視認性確保 */
+  --color-accent: #7B75D4;
+  --color-accent-hover: #9B96E0;
+  --color-accent-light: #1E1A4A;
+
+  --color-border: #2E2A5C;
+  --color-border-strong: #3F3A72;
+
+  --color-success: #4ADE80;
+  --color-error: #F87171;
+  --color-warning: #FBBF24;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
+}
+
+/* ========================================
+   Tailwind テーマ拡張
+   CSS変数をTailwindユーティリティにマッピング
+   ======================================== */
 @theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  /* 背景色 */
+  --color-bg-primary: var(--color-bg-primary);
+  --color-bg-secondary: var(--color-bg-secondary);
+  --color-bg-tertiary: var(--color-bg-tertiary);
+
+  /* テキスト色 */
+  --color-text-primary: var(--color-text-primary);
+  --color-text-secondary: var(--color-text-secondary);
+  --color-text-muted: var(--color-text-muted);
+
+  /* アクセント色 */
+  --color-accent: var(--color-accent);
+  --color-accent-hover: var(--color-accent-hover);
+  --color-accent-light: var(--color-accent-light);
+
+  /* ボーダー色 */
+  --color-border: var(--color-border);
+  --color-border-strong: var(--color-border-strong);
+
+  /* ステータス色 */
+  --color-success: var(--color-success);
+  --color-error: var(--color-error);
+  --color-warning: var(--color-warning);
+
+  /* フォント */
+  --font-sans: var(--font-inter), var(--font-noto-sans-jp), system-ui, sans-serif;
+  --font-mono: var(--font-jetbrains-mono), monospace;
 }
 
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
+/* ========================================
+   ベーススタイル
+   ======================================== */
+
+/* ダークモード切り替え時に全要素の背景・文字・ボーダー色を同じタイミングで遷移させる */
+*,
+*::before,
+*::after {
+  transition-property: color, background-color, border-color, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: ease;
 }
 
 body {
-  background: var(--background);
-  color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  background: var(--color-bg-primary);
+  color: var(--color-text-primary);
+}
+
+/* スクロールバーのスタイリング */
+::-webkit-scrollbar {
+  width: 6px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--color-bg-secondary);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-strong);
+  border-radius: 3px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-text-muted);
+}
+
+/* テキスト選択色 */
+::selection {
+  background: var(--color-accent-light);
+  color: var(--color-text-primary);
 }
