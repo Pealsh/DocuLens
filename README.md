@@ -1,36 +1,113 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# DocuLens
 
-## Getting Started
+AI を使ってドキュメントを要約・質問応答できる Web アプリケーション。
+PDF、テキスト、URL、YouTube 動画を入力として受け付け、Google Gemini による要約生成と FAQ チャットを提供する。
 
-First, run the development server:
+---
+
+## 機能
+
+- PDF / テキストファイルのアップロードとテキスト抽出
+- URL 指定による Web ページのスクレイピング
+- YouTube 動画 URL から字幕を取得して要約
+- Google Gemini 2.5 Flash によるストリーミング要約生成
+- ドキュメントを文脈にした FAQ チャット（ストリーミング）
+- ダーク / ライトモード切り替え（システム設定に自動追従）
+- 要約・チャット回答のコピー機能
+
+---
+
+## 使用言語 / 技術スタック
+
+| カテゴリ | 技術 |
+|---|---|
+| 言語 | TypeScript |
+| フレームワーク | Next.js 16 (App Router) |
+| UI ライブラリ | React 19 |
+| スタイリング | Tailwind CSS v4 |
+| アニメーション | Framer Motion |
+| AI | Google Gemini 2.5 Flash (`@google/generative-ai`) |
+| PDF 解析 | pdf-parse |
+| Web スクレイピング | cheerio |
+| YouTube | youtube-transcript |
+| 言語 | TypeScript 5 |
+
+---
+
+## 必要な環境
+
+- Node.js 18 以上
+- Google Gemini API キー
+
+---
+
+## セットアップ
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# 依存パッケージをインストール
+npm install
+
+# 環境変数ファイルを作成
+cp .env.example .env.local
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+`.env.local` を編集して API キーを設定する。
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+```env
+GEMINI_API_KEY=your_api_key_here
+```
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+---
 
-## Learn More
+## 起動方法
 
-To learn more about Next.js, take a look at the following resources:
+```bash
+# 開発サーバー起動
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+ブラウザで `http://localhost:3000` にアクセスする。
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+```bash
+# 本番ビルド
+npm run build
+npm run start
+```
 
-## Deploy on Vercel
+---
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## ディレクトリ構成
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── chat/          # FAQ チャット API
+│   │   ├── documents/     # ドキュメント削除 API
+│   │   ├── fetch-url/     # URL / YouTube 取得 API
+│   │   ├── summarize/     # 要約生成 API
+│   │   └── upload/        # ファイルアップロード API
+│   ├── globals.css        # カラートークン・グローバルスタイル
+│   ├── layout.tsx         # ルートレイアウト
+│   └── page.tsx           # メインページ
+├── components/
+│   ├── chat/              # チャット UI コンポーネント
+│   ├── layout/            # Header / Footer
+│   ├── mode/              # モード切り替えタブ
+│   ├── summary/           # 要約表示コンポーネント
+│   ├── ui/                # 共通 UI（Button / Card / Modal 等）
+│   └── upload/            # ファイル入力・ドキュメント一覧
+├── contexts/
+│   └── ThemeContext.tsx   # ダークモード Context
+├── hooks/                 # カスタムフック
+├── lib/                   # ユーティリティ（Gemini / パーサー / プロンプト）
+└── types/                 # TypeScript 型定義
+```
+
+---
+
+## 環境変数
+
+| 変数名 | 説明 |
+|---|---|
+| `GEMINI_API_KEY` | Google AI Studio で発行した API キー |
