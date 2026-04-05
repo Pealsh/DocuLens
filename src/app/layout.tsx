@@ -1,7 +1,6 @@
-// 共通レイアウト（フォント・テーマ設定）
+// Root layout (fonts, theme setup)
 import type { Metadata } from 'next';
 import { Inter, JetBrains_Mono } from 'next/font/google';
-import Script from 'next/script';
 import './globals.css';
 import { APP_NAME, APP_DESCRIPTION } from '@/lib/constants';
 import Providers from './providers';
@@ -23,6 +22,9 @@ export const metadata: Metadata = {
   description: APP_DESCRIPTION,
 };
 
+// Inline script injected as raw HTML - runs before React hydrates to prevent dark mode flash
+const themeScript = `(function(){try{var t=localStorage.getItem('doculens-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`;
+
 export default function RootLayout({
   children,
 }: Readonly<{
@@ -35,10 +37,7 @@ export default function RootLayout({
       suppressHydrationWarning
     >
       <head>
-        {/* ダークモードのちらつき防止スクリプト（React hydration 前に実行） */}
-        <Script id="theme-init" strategy="beforeInteractive">
-          {`(function(){try{var t=localStorage.getItem('doculens-theme');if(t==='dark'||(!t&&window.matchMedia('(prefers-color-scheme: dark)').matches)){document.documentElement.classList.add('dark');}}catch(e){}})();`}
-        </Script>
+        <script dangerouslySetInnerHTML={{ __html: themeScript }} />
       </head>
       <body className="min-h-full flex flex-col font-sans antialiased">
         <Providers>{children}</Providers>

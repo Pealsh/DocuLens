@@ -1,11 +1,15 @@
-// ダークモード切替ボタン
+// Dark mode toggle button
 'use client';
 
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import { useTheme } from '@/hooks/useTheme';
 
 export default function ThemeToggle() {
   const { isDarkMode, toggleTheme } = useTheme();
+  // マウント前は SSR と一致させるためアイコン・ラベルを確定しない
+  const [mounted, setMounted] = useState(false);
+  useEffect(() => setMounted(true), []);
 
   return (
     <motion.button
@@ -19,9 +23,11 @@ export default function ThemeToggle() {
         transition-colors duration-[var(--transition-fast)]
         cursor-pointer
       "
-      aria-label={isDarkMode ? 'ライトモードに切り替え' : 'ダークモードに切り替え'}
+      aria-label={mounted ? (isDarkMode ? 'Switch to light mode' : 'Switch to dark mode') : 'Toggle theme'}
+      suppressHydrationWarning
     >
-      {isDarkMode ? (
+      {/* マウント前は月アイコン固定（SSR と一致） */}
+      {mounted && isDarkMode ? (
         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
           <circle cx="12" cy="12" r="5" />
           <line x1="12" y1="1" x2="12" y2="3" />

@@ -1,4 +1,4 @@
-// メインページ（モード切り替え含む）
+// Main page (mode switching)
 'use client';
 
 import { useState, useCallback, useRef } from 'react';
@@ -129,7 +129,7 @@ export default function HomePage() {
       <Header />
       <main className="flex-1">
         <div className="mx-auto max-w-[960px] px-4 py-8 space-y-8">
-          {/* ドキュメント入力セクション */}
+          {/* Document input section */}
           <section className="space-y-4">
             <div>
               <h2 className="text-lg font-bold text-text-primary">
@@ -140,7 +140,7 @@ export default function HomePage() {
               </p>
             </div>
 
-            {/* 入力方法切り替えタブ */}
+            {/* Input method tabs */}
             <div className="flex gap-1 bg-bg-tertiary rounded-[var(--radius-sm)] p-1 w-fit">
               {INPUT_METHOD_OPTIONS.map((option) => (
                 <button
@@ -198,11 +198,11 @@ export default function HomePage() {
             />
           </section>
 
-          {/* モード切り替え */}
+          {/* Mode switcher */}
           <section className="space-y-4">
             <ModeSwitcher currentMode={currentMode} onModeSwitch={handleModeSwitch} />
 
-            {/* モードコンテンツ - 横スライドアニメーション */}
+            {/* Mode content - horizontal slide animation */}
             <div className="overflow-hidden">
               <AnimatePresence mode="wait" initial={false}>
                 <motion.div

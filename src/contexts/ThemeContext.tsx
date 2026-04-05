@@ -23,14 +23,14 @@ const ThemeContext = createContext<ThemeContextType>({
 });
 
 export function ThemeProvider({ children }: { children: ReactNode }) {
-  // インラインスクリプトが既に <html> に 'dark' クラスを付与しているため
-  // DOM から初期値を読み取ることでハイドレーション後のフラッシュを防ぐ
-  const [isDarkMode, setIsDarkMode] = useState<boolean>(() => {
-    if (typeof document !== 'undefined') {
-      return document.documentElement.classList.contains('dark');
-    }
-    return false;
-  });
+  // 初期値は false（SSR と一致させて Hydration エラーを防ぐ）
+  // 実際の値は useEffect でマウント後に DOM から同期する
+  const [isDarkMode, setIsDarkMode] = useState<boolean>(false);
+
+  useEffect(() => {
+    // マウント後にインラインスクリプトが設定した DOM クラスと同期
+    setIsDarkMode(document.documentElement.classList.contains('dark'));
+  }, []);
 
   // isDarkMode が変わるたびに DOM クラスと localStorage を同期
   useEffect(() => {
