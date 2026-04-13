@@ -10,8 +10,10 @@ PDF、テキスト、URL、YouTube 動画を入力として受け付け、Google
 - PDF / テキストファイルのアップロードとテキスト抽出
 - URL 指定による Web ページのスクレイピング
 - YouTube 動画 URL から字幕を取得して要約
+- テキスト / URL 入力の統合（自動判定）
 - Google Gemini 2.5 Flash によるストリーミング要約生成
 - ドキュメントを文脈にした FAQ チャット（ストリーミング）
+- ドキュメント内容から4択クイズを自動生成して復習
 - ダーク / ライトモード切り替え（システム設定に自動追従）
 - 要約・チャット回答のコピー機能
 
@@ -83,6 +85,7 @@ src/
 ├── app/
 │   ├── api/
 │   │   ├── chat/          # FAQ チャット API
+│   │   ├── quiz/          # クイズ生成 API
 │   │   ├── documents/     # ドキュメント削除 API
 │   │   ├── fetch-url/     # URL / YouTube 取得 API
 │   │   ├── summarize/     # 要約生成 API
@@ -94,6 +97,7 @@ src/
 │   ├── chat/              # チャット UI コンポーネント
 │   ├── layout/            # Header / Footer
 │   ├── mode/              # モード切り替えタブ
+│   ├── quiz/              # クイズ UI コンポーネント
 │   ├── summary/           # 要約表示コンポーネント
 │   ├── ui/                # 共通 UI（Button / Card / Modal 等）
 │   └── upload/            # ファイル入力・ドキュメント一覧
