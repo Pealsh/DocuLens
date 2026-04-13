@@ -213,52 +213,97 @@ function renderInlineMarkdown(text: string): React.ReactNode[] {
 }
 
 function SummaryContent({ text }: { text: string }) {
-  /**
-   * Markdownの見出し・箇条書き・インライン書式をHTMLに変換する
-   * 本格的なMarkdownパーサーを使わず、要約出力の構造に特化した処理
-   */
   const lines = text.split('\n');
 
+  // 連続する箇条書き行をグループ化してまとめて <ul> で出力する
+  type Block =
+    | { type: 'h2'; content: string; key: number }
+    | { type: 'h3'; content: string; key: number }
+    | { type: 'hr'; key: number }
+    | { type: 'p'; content: string; key: number }
+    | { type: 'ul'; items: { content: string; key: number }[] };
+
+  const blocks: Block[] = [];
+  let ulBuffer: { content: string; key: number }[] = [];
+
+  const flushUl = () => {
+    if (ulBuffer.length > 0) {
+      blocks.push({ type: 'ul', items: [...ulBuffer] });
+      ulBuffer = [];
+    }
+  };
+
+  lines.forEach((line, index) => {
+    const t = line.trim();
+    if (!t) { flushUl(); return; }
+
+    if (t.startsWith('## ')) {
+      flushUl();
+      blocks.push({ type: 'h2', content: t.slice(3), key: index });
+    } else if (t.startsWith('### ')) {
+      flushUl();
+      blocks.push({ type: 'h3', content: t.slice(4), key: index });
+    } else if (t === '---') {
+      flushUl();
+      blocks.push({ type: 'hr', key: index });
+    } else if (t.startsWith('- ') || t.startsWith('* ')) {
+      ulBuffer.push({ content: t.slice(2), key: index });
+    } else {
+      flushUl();
+      blocks.push({ type: 'p', content: t, key: index });
+    }
+  });
+  flushUl();
+
   return (
-    <div className="space-y-2">
-      {lines.map((line, index) => {
-        const trimmedLine = line.trim();
-        if (!trimmedLine) return <div key={index} className="h-2" />;
-
-        if (trimmedLine.startsWith('### ')) {
+    <div className="space-y-1">
+      {blocks.map((block, bi) => {
+        if (block.type === 'h2') {
           return (
-            <h4 key={index} className="text-base font-bold text-text-primary mt-3 mb-1">
-              {renderInlineMarkdown(trimmedLine.replace('### ', ''))}
-            </h4>
-          );
-        }
-
-        if (trimmedLine.startsWith('## ')) {
-          return (
-            <h3 key={index} className="text-lg font-bold text-accent mt-4 mb-2">
-              {renderInlineMarkdown(trimmedLine.replace('## ', ''))}
-            </h3>
-          );
-        }
-
-        if (trimmedLine.startsWith('- ') || trimmedLine.startsWith('* ')) {
-          return (
-            <div key={index} className="flex gap-2 pl-2">
-              <span className="text-accent mt-1.5 flex-shrink-0">•</span>
-              <p className="text-text-primary text-sm leading-relaxed">
-                {renderInlineMarkdown(trimmedLine.replace(/^[-*]\s/, ''))}
-              </p>
+            <div key={block.key} className={`${bi > 0 ? 'pt-5' : ''}`}>
+              <h3 className="
+                flex items-center gap-2.5
+                text-base font-bold text-text-primary
+                pb-2 mb-1
+                border-b border-border
+              ">
+                <span className="inline-block w-1 h-5 rounded-full bg-accent flex-shrink-0" />
+                {renderInlineMarkdown(block.content)}
+              </h3>
             </div>
           );
         }
 
-        if (trimmedLine === '---') {
-          return <hr key={index} className="border-border my-4" />;
+        if (block.type === 'h3') {
+          return (
+            <h4 key={block.key} className="text-sm font-semibold text-text-secondary mt-3 mb-0.5 pl-3">
+              {renderInlineMarkdown(block.content)}
+            </h4>
+          );
+        }
+
+        if (block.type === 'hr') {
+          return <hr key={block.key} className="border-border my-3" />;
+        }
+
+        if (block.type === 'ul') {
+          return (
+            <ul key={`ul-${bi}`} className="space-y-1.5 pl-3 mt-1">
+              {block.items.map((item) => (
+                <li key={item.key} className="flex items-baseline gap-2.5">
+                  <span className="w-1.5 h-1.5 rounded-full bg-accent flex-shrink-0 mt-[0.4em]" />
+                  <span className="text-text-primary text-sm leading-relaxed">
+                    {renderInlineMarkdown(item.content)}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          );
         }
 
         return (
-          <p key={index} className="text-text-primary text-sm leading-relaxed">
-            {renderInlineMarkdown(trimmedLine)}
+          <p key={block.key} className="text-text-secondary text-sm leading-relaxed pl-3">
+            {renderInlineMarkdown(block.content)}
           </p>
         );
       })}
