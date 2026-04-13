@@ -5,12 +5,11 @@ import { motion } from 'framer-motion';
 import type { AppMode } from '@/lib/constants';
 import { MODE_SUMMARY, MODE_CHAT, MODE_QUIZ } from '@/lib/constants';
 
-// タブインジケーターとコンテンツ切り替えで共有する spring 設定
 export const MODE_SWITCH_SPRING = {
   type: 'spring',
-  stiffness: 400,
-  damping: 30,
-  mass: 1,
+  stiffness: 500,
+  damping: 38,
+  mass: 0.8,
 } as const;
 
 interface ModeSwitcherProps {
@@ -26,7 +25,7 @@ const MODE_OPTIONS = [
 
 export default function ModeSwitcher({ currentMode, onModeSwitch }: ModeSwitcherProps) {
   return (
-    <div className="relative flex bg-bg-tertiary rounded-[var(--radius-md)] p-1">
+    <div className="relative flex bg-bg-tertiary rounded-[var(--radius-md)] p-1 shadow-[inset_0_1px_2px_rgba(0,0,0,0.06)]">
       {MODE_OPTIONS.map((option) => {
         const isActive = currentMode === option.key;
         return (
@@ -37,9 +36,9 @@ export default function ModeSwitcher({ currentMode, onModeSwitch }: ModeSwitcher
               relative z-10 flex-1 flex items-center justify-center gap-2
               py-2.5 px-4 text-sm font-medium
               rounded-[var(--radius-sm)]
-              transition-colors duration-[150ms]
-              cursor-pointer
-              ${isActive ? 'text-accent' : 'text-text-muted hover:text-text-secondary'}
+              transition-colors duration-200
+              cursor-pointer select-none
+              ${isActive ? 'text-text-primary' : 'text-text-muted hover:text-text-secondary'}
             `}
           >
             <option.icon isActive={isActive} />
@@ -47,7 +46,7 @@ export default function ModeSwitcher({ currentMode, onModeSwitch }: ModeSwitcher
             {isActive && (
               <motion.div
                 layoutId="mode-indicator"
-                className="absolute inset-0 bg-bg-primary rounded-[var(--radius-sm)] shadow-[var(--shadow-sm)]"
+                className="absolute inset-0 bg-bg-primary rounded-[var(--radius-sm)] shadow-[var(--shadow-md)]"
                 style={{ zIndex: -1 }}
                 transition={MODE_SWITCH_SPRING}
               />

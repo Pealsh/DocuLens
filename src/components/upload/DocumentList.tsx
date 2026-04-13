@@ -97,10 +97,14 @@ export default function DocumentList({
           {documentList.map((document, index) => (
             <motion.div
               key={document.id}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, x: -20 }}
-              transition={{ delay: index * 0.05 }}
+              initial={{ opacity: 0, y: 12, scale: 0.97 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, x: -16, scale: 0.96, transition: { duration: 0.18 } }}
+              transition={{
+                duration: 0.32,
+                ease: [0.22, 1, 0.36, 1],
+                delay: index === documentList.length - 1 ? 0 : 0,
+              }}
             >
               <Card padding="sm" className="flex items-center gap-3">
                 <div className="w-8 h-8 flex-shrink-0 rounded-[var(--radius-sm)] bg-accent-light flex items-center justify-center">
