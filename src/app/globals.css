@@ -9,34 +9,34 @@
    コンポーネント内では var(--color-xxx) で参照
    ======================================== */
 :root {
-  /* 背景 - #322d8e に合うラベンダー系ライトトーン */
-  --color-bg-primary: #FAFAFE;
-  --color-bg-secondary: #F3F2FB;
-  --color-bg-tertiary: #E9E7F7;
+  /* 背景 */
+  --color-bg-primary: #F8F8FC;
+  --color-bg-secondary: #F0EFF9;
+  --color-bg-tertiary: #E4E2F4;
 
-  /* テキスト */
-  --color-text-primary: #1A1830;
-  --color-text-secondary: #5B5880;
-  --color-text-muted: #9896B8;
+  /* テキスト - コントラスト強化 */
+  --color-text-primary: #16142B;
+  --color-text-secondary: #4A4870;
+  --color-text-muted: #7A78A0;       /* 旧 #9896B8 → 濃くしてコントラスト確保 */
 
-  /* アクセント - ベース #322d8e */
+  /* アクセント */
   --color-accent: #322d8e;
   --color-accent-hover: #2A2578;
   --color-accent-light: #ECEAFF;
 
-  /* ボーダー・区切り線 */
-  --color-border: #DDDAF0;
-  --color-border-strong: #C4C0E2;
+  /* ボーダー - 旧より明確に */
+  --color-border: #C8C4E6;           /* 旧 #DDDAF0 */
+  --color-border-strong: #A8A3D0;    /* 旧 #C4C0E2 */
 
   /* ステータス */
-  --color-success: #22C55E;
-  --color-error: #EF4444;
-  --color-warning: #F59E0B;
+  --color-success: #16A34A;
+  --color-error: #DC2626;
+  --color-warning: #D97706;
 
-  /* シャドウ - 紫みがかったシャドウ */
-  --shadow-sm: 0 1px 2px rgba(50, 45, 142, 0.06);
-  --shadow-md: 0 4px 6px rgba(50, 45, 142, 0.08);
-  --shadow-lg: 0 10px 15px rgba(50, 45, 142, 0.12);
+  /* シャドウ */
+  --shadow-sm: 0 1px 3px rgba(50, 45, 142, 0.10);
+  --shadow-md: 0 4px 8px rgba(50, 45, 142, 0.12);
+  --shadow-lg: 0 10px 20px rgba(50, 45, 142, 0.15);
 
   /* 角丸 */
   --radius-sm: 8px;
@@ -48,31 +48,35 @@
   --transition-normal: 300ms ease;
 }
 
-/* ダークモード - ディープパープル系 */
+/* ダークモード */
 .dark {
-  --color-bg-primary: #0E0C1E;
-  --color-bg-secondary: #17143A;
-  --color-bg-tertiary: #231F50;
+  /* 背景 - 紫みを抑えてニュートラル寄りに（アクセントが映えやすくなる） */
+  --color-bg-primary: #0C0B16;       /* 旧 #0E0C1E */
+  --color-bg-secondary: #131228;     /* 旧 #17143A */
+  --color-bg-tertiary: #1D1B3A;      /* 旧 #231F50 */
 
-  --color-text-primary: #EEEDF8;
-  --color-text-secondary: #9896C8;
-  --color-text-muted: #5E5C88;
+  /* テキスト - muted を大幅に明るく（コントラスト比 4.5:1 以上） */
+  --color-text-primary: #EDEcf8;
+  --color-text-secondary: #A09EC8;   /* 旧 #9896C8 → やや明るく */
+  --color-text-muted: #8F8DB5;       /* 旧 #5E5C88 → +大幅改善 */
 
-  /* ダークモードでは少し明るめの紫で視認性確保 */
-  --color-accent: #7B75D4;
-  --color-accent-hover: #9B96E0;
-  --color-accent-light: #1E1A4A;
+  /* アクセント - 少し明るくして暗い背景で目立つように */
+  --color-accent: #9D98E8;           /* 旧 #7B75D4 */
+  --color-accent-hover: #B8B4F0;     /* 旧 #9B96E0 */
+  --color-accent-light: #1C1940;     /* 旧 #1E1A4A */
 
-  --color-border: #2E2A5C;
-  --color-border-strong: #3F3A72;
+  /* ボーダー - より視認性を上げる */
+  --color-border: #2E2B54;           /* 旧 #2E2A5C → 青みを抑えて明確に */
+  --color-border-strong: #4A4680;    /* 旧 #3F3A72 → 明るく */
 
+  /* ステータス - 暗い背景でも十分な明度 */
   --color-success: #4ADE80;
   --color-error: #F87171;
   --color-warning: #FBBF24;
 
-  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
-  --shadow-md: 0 4px 6px rgba(0, 0, 0, 0.5);
-  --shadow-lg: 0 10px 15px rgba(0, 0, 0, 0.6);
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.5);
+  --shadow-md: 0 4px 8px rgba(0, 0, 0, 0.6);
+  --shadow-lg: 0 10px 20px rgba(0, 0, 0, 0.7);
 }
 
 /* ========================================
