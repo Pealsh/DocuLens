@@ -19,5 +19,6 @@ export const STREAMING_CHUNK_DELAY_MS = 10;
 
 export const MODE_SUMMARY = 'summary' as const;
 export const MODE_CHAT = 'chat' as const;
+export const MODE_QUIZ = 'quiz' as const;
 
-export type AppMode = typeof MODE_SUMMARY | typeof MODE_CHAT;
+export type AppMode = typeof MODE_SUMMARY | typeof MODE_CHAT | typeof MODE_QUIZ;
