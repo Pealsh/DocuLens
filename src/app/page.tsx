@@ -12,22 +12,26 @@ import DocumentList from '@/components/upload/DocumentList';
 import ModeSwitcher from '@/components/mode/ModeSwitcher';
 import SummaryView from '@/components/summary/SummaryView';
 import ChatWindow from '@/components/chat/ChatWindow';
+import QuizView from '@/components/quiz/QuizView';
 import Card from '@/components/ui/Card';
 import { useDocuments } from '@/hooks/useDocuments';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import { useSummary } from '@/hooks/useSummary';
 import { useChat } from '@/hooks/useChat';
-import { MODE_SUMMARY, MODE_CHAT, type AppMode } from '@/lib/constants';
+import { MODE_SUMMARY, MODE_CHAT, MODE_QUIZ, type AppMode } from '@/lib/constants';
 
 type InputMethod = 'file' | 'text' | 'url';
 
+const MODE_ORDER: AppMode[] = [MODE_SUMMARY, MODE_CHAT, MODE_QUIZ];
+
 /**
- * スライド方向を決定する
- * summary→chat: 右へスライド（+1）、chat→summary: 左へスライド（-1）
+ * スライド方向を決定する（モードの並び順に基づく）
  */
 function getSlideDirection(from: AppMode, to: AppMode): number {
-  if (from === MODE_SUMMARY && to === MODE_CHAT) return 1;
-  if (from === MODE_CHAT && to === MODE_SUMMARY) return -1;
+  const fromIndex = MODE_ORDER.indexOf(from);
+  const toIndex = MODE_ORDER.indexOf(to);
+  if (fromIndex < toIndex) return 1;
+  if (fromIndex > toIndex) return -1;
   return 0;
 }
 
@@ -212,7 +216,7 @@ export default function HomePage() {
                   exit={{ opacity: 0, x: slideDirection * -SLIDE_OFFSET }}
                   transition={CONTENT_TRANSITION}
                 >
-                  {currentMode === 'summary' ? (
+                  {currentMode === MODE_SUMMARY && (
                     <SummaryView
                       summaryText={summaryText}
                       isSummarizing={isSummarizing}
@@ -222,13 +226,20 @@ export default function HomePage() {
                       onGenerateSummary={handleGenerateSummary}
                       onRegenerate={handleRegenerateSummary}
                     />
-                  ) : (
+                  )}
+                  {currentMode === MODE_CHAT && (
                     <ChatWindow
                       messageList={messageList}
                       isSendingMessage={isSendingMessage}
                       hasDocuments={hasDocuments}
                       onSendMessage={handleSendChatMessage}
                       onClearMessages={clearMessages}
+                    />
+                  )}
+                  {currentMode === MODE_QUIZ && (
+                    <QuizView
+                      hasDocuments={hasDocuments}
+                      combinedDocumentText={combinedDocumentText}
                     />
                   )}
                 </motion.div>

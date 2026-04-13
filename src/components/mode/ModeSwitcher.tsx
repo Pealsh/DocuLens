@@ -3,7 +3,7 @@
 
 import { motion } from 'framer-motion';
 import type { AppMode } from '@/lib/constants';
-import { MODE_SUMMARY, MODE_CHAT } from '@/lib/constants';
+import { MODE_SUMMARY, MODE_CHAT, MODE_QUIZ } from '@/lib/constants';
 
 // タブインジケーターとコンテンツ切り替えで共有する spring 設定
 export const MODE_SWITCH_SPRING = {
@@ -21,6 +21,7 @@ interface ModeSwitcherProps {
 const MODE_OPTIONS = [
   { key: MODE_SUMMARY, label: '要約', icon: SummaryIcon },
   { key: MODE_CHAT, label: 'FAQ チャット', icon: ChatIcon },
+  { key: MODE_QUIZ, label: 'クイズ', icon: QuizIcon },
 ] as const;
 
 export default function ModeSwitcher({ currentMode, onModeSwitch }: ModeSwitcherProps) {
@@ -80,6 +81,20 @@ function ChatIcon({ isActive }: { isActive: boolean }) {
       strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
     >
       <path d="M21 15a2 2 0 01-2 2H7l-4 4V5a2 2 0 012-2h14a2 2 0 012 2z" />
+    </svg>
+  );
+}
+
+function QuizIcon({ isActive }: { isActive: boolean }) {
+  return (
+    <svg
+      width="16" height="16" viewBox="0 0 24 24" fill="none"
+      stroke={isActive ? 'var(--color-accent)' : 'currentColor'}
+      strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"
+    >
+      <circle cx="12" cy="12" r="10" />
+      <path d="M9.09 9a3 3 0 015.83 1c0 2-3 3-3 3" />
+      <line x1="12" y1="17" x2="12.01" y2="17" />
     </svg>
   );
 }
