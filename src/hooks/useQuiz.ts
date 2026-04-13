@@ -1,7 +1,7 @@
 'use client';
 
 import { useState, useCallback } from 'react';
-import type { Quiz, QuizQuestion, QuizStatus, UserAnswer } from '@/types/quiz';
+import type { Quiz, QuizStatus, UserAnswer } from '@/types/quiz';
 
 export function useQuiz() {
   const [quiz, setQuiz] = useState<Quiz | null>(null);
@@ -9,8 +9,6 @@ export function useQuiz() {
   const [error, setError] = useState<string | null>(null);
   const [currentIndex, setCurrentIndex] = useState(0);
   const [answers, setAnswers] = useState<UserAnswer[]>([]);
-  const [selectedIndex, setSelectedIndex] = useState<number | null>(null);
-  const [isAnswered, setIsAnswered] = useState(false);
 
   const generateQuiz = useCallback(async (documentText: string, questionCount = 5) => {
     setStatus('generating');
@@ -18,8 +16,6 @@ export function useQuiz() {
     setQuiz(null);
     setCurrentIndex(0);
     setAnswers([]);
-    setSelectedIndex(null);
-    setIsAnswered(false);
 
     try {
       const response = await fetch('/api/quiz', {
@@ -44,11 +40,11 @@ export function useQuiz() {
   }, []);
 
   const selectAnswer = useCallback((index: number) => {
-    if (isAnswered || !quiz) return;
-    setSelectedIndex(index);
-    setIsAnswered(true);
+    if (!quiz) return;
+    const question = quiz.questions[currentIndex];
+    // すでに回答済みなら何もしない
+    if (answers.some((a) => a.questionId === question.id)) return;
 
-    const question: QuizQuestion = quiz.questions[currentIndex];
     setAnswers((prev) => [
       ...prev,
       {
@@ -57,19 +53,26 @@ export function useQuiz() {
         isCorrect: index === question.correctIndex,
       },
     ]);
-  }, [isAnswered, quiz, currentIndex]);
+  }, [quiz, currentIndex, answers]);
 
-  const nextQuestion = useCallback(() => {
+  const goNext = useCallback(() => {
     if (!quiz) return;
-
     if (currentIndex + 1 >= quiz.questions.length) {
       setStatus('completed');
     } else {
       setCurrentIndex((i) => i + 1);
-      setSelectedIndex(null);
-      setIsAnswered(false);
     }
   }, [quiz, currentIndex]);
+
+  const goPrev = useCallback(() => {
+    if (currentIndex > 0) setCurrentIndex((i) => i - 1);
+  }, [currentIndex]);
+
+  const goToIndex = useCallback((index: number) => {
+    if (!quiz) return;
+    if (index < 0 || index >= quiz.questions.length) return;
+    setCurrentIndex(index);
+  }, [quiz]);
 
   const resetQuiz = useCallback(() => {
     setQuiz(null);
@@ -77,13 +80,22 @@ export function useQuiz() {
     setError(null);
     setCurrentIndex(0);
     setAnswers([]);
-    setSelectedIndex(null);
-    setIsAnswered(false);
   }, []);
 
   const currentQuestion = quiz?.questions[currentIndex] ?? null;
+
+  // 現在の問題への回答を answers 配列から導出（戻り操作でも正しく表示される）
+  const currentAnswer = quiz
+    ? answers.find((a) => a.questionId === quiz.questions[currentIndex]?.id)
+    : undefined;
+  const isAnswered = !!currentAnswer;
+  const selectedIndex = currentAnswer?.selectedIndex ?? null;
+
   const correctCount = answers.filter((a) => a.isCorrect).length;
   const totalCount = quiz?.questions.length ?? 0;
+  const allAnswered = totalCount > 0 && answers.length === totalCount;
+  const canGoPrev = currentIndex > 0;
+  const canGoNext = isAnswered && currentIndex < totalCount - 1;
 
   return {
     quiz,
@@ -96,9 +108,14 @@ export function useQuiz() {
     isAnswered,
     correctCount,
     totalCount,
+    allAnswered,
+    canGoPrev,
+    canGoNext,
     generateQuiz,
     selectAnswer,
-    nextQuestion,
+    goNext,
+    goPrev,
+    goToIndex,
     resetQuiz,
   };
 }
